@@ -1,10 +1,10 @@
 package com.client.assignment1.comp90015;
 
-public class Client {
+public class DictionaryServer {
 
 	public static void main(String[] args) {
-		
-		System.out.println("This is client!");
-		
+		// TODO Auto-generated method stub
+
 	}
+
 }
