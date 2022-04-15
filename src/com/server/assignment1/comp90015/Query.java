@@ -1,10 +1,11 @@
 package com.server.assignment1.comp90015;
 
-public class DictionaryClient {
+public class Query implements Runnable {
 
-	public static void main(String[] args) {
+	@Override
+	public void run() {
 		// TODO Auto-generated method stub
-
+		
 	}
 
 }
