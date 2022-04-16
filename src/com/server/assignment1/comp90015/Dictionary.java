@@ -1,0 +1,121 @@
+package com.server.assignment1.comp90015;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Scanner;
+
+public class Dictionary {
+	
+	private final int WORD_INDEX = 0;
+	private final int DEF_INDEX = 1;
+	private String path;
+	private int word_count;
+	private int query_count;
+	private int add_count;
+	private int remove_count;
+	private int update_count;
+	private HashMap<String, String[]> dict;
+	
+	
+	public Dictionary(String path) {
+		this.path = path;
+		this.dict = new HashMap<String, String[]>();
+		this.word_count = 0;
+		this.query_count = 0;
+		this.add_count = 0;
+		this.remove_count = 0;
+		this.update_count = 0;
+	}
+	
+	public void init() {
+		try {
+			Scanner inputStream = new Scanner(new FileInputStream(this.path));
+			while(inputStream.hasNextLine()) {
+				String[] entry = inputStream.nextLine().split("-", -1);
+				String[] defs = entry[DEF_INDEX].split("&&",-1);
+				dict.put(entry[WORD_INDEX], defs);
+				this.word_count++;
+			}
+			System.out.println("" + this.word_count + " words have been loaded.");
+			inputStream.close();
+			
+		} catch (FileNotFoundException e) {
+			System.err.println("Error: could not find dictionary file.");
+			System.exit(1);
+		}
+	}
+	
+	public void write() {
+		
+	}
+	
+	public String query(String word) {
+		this.query_count++;
+		if (this.dict.containsKey(word)) {
+			String response = "";
+			String[] defs = dict.get(word);
+			int def_count = 1;
+			for (String def : defs) {
+				response = response + "def" + def_count + ". " + def + "\n";
+				def_count++;
+			}
+			return response.trim();
+		} else {
+			return "Error: The word you are looking for was not found.";
+		}
+	}
+	
+	public String add(String word, String defs_str) {
+		this.query_count++;
+		if (!this.dict.containsKey(word)) {
+			String[] defs = defs_str.split("&&");
+			this.dict.put(word, defs);
+			return "Successfully add the word: " + word;
+		} else {
+			return "Error: target word exists, fail to add duplicate word.";
+		}
+		
+	}
+	
+	public String remove(String word) {
+		this.query_count++;
+		if (this.dict.containsKey(word)) {
+			this.dict.remove(word);
+			return "Successfully remove the word: " + word;
+		} else {
+			return "Error: target word does not exist, fail to remove empty word.";
+		}
+	}
+	
+	public String update(String word, String defs_str) {
+		this.query_count++;
+		if (this.dict.containsKey(word)) {
+			String[] defs = defs_str.split("&&");
+			this.dict.put(word, defs);
+			return "Successfully update the word: " + word;
+		} else {
+			return "Error: target word does not exist, please add it first.";
+		}
+	}
+	
+	public int getWordNum() {
+		return this.word_count;
+	}
+	
+	public int getQueryNum() {
+		return this.query_count;
+	}
+	
+	public int getAddNum() {
+		return this.add_count;
+	}
+	
+	public int getRemoveNum() {
+		return this.remove_count;
+	}
+	
+	public int getUpdateNum() {
+		return this.update_count;
+	}
+}

@@ -10,9 +10,11 @@ import org.json.simple.parser.ParseException;
 public class Task implements Runnable{
 
 	private Socket socket;
+	private Dictionary dict;
 	
-	public Task(Socket socket) {
+	public Task(Socket socket, Dictionary dict) {
 		this.socket = socket;
+		this.dict = dict;
 	}
 	
 	@Override
@@ -48,28 +50,30 @@ public class Task implements Runnable{
 				result = update(query); break;
 		}
 		JSONObject response = new JSONObject();
-		response.put("reponse", result);
+		response.put("response", result);
 		output.writeUTF(response.toJSONString());		
 	}
 	
 	private String lookup(JSONObject query){
-		
-		return "lookup successful";
+		String word = (String)query.get("word");
+		return dict.query(word);
 	}
 	
 	private String add(JSONObject query) {
-		
-		return "add successful";
+		String word = (String)query.get("word");
+		String defs = (String)query.get("defs");
+		return dict.add(word, defs);
 	}
 	
 	private String remove(JSONObject query) {
-		
-		return "remove successful";
+		String word = (String)query.get("word");
+		return dict.remove(word);
 	}
 	
 	private String update(JSONObject query) {
-		
-		return "update successful";
+		String word = (String)query.get("word");
+		String defs = (String)query.get("defs");
+		return dict.update(word, defs);
 	}
 
 }
