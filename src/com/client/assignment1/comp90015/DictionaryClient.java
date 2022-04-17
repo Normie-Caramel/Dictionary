@@ -1,102 +1,259 @@
 package com.client.assignment1.comp90015;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
-import java.net.UnknownHostException;
+import java.awt.EventQueue;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import javax.swing.JFrame;
 
-public class DictionaryClient {
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JRadioButton;
+import javax.swing.JLabel;
+import java.awt.Font;
+import javax.swing.JTextArea;
+import java.util.ArrayList;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
-	private static String ip = "localhost";
-	private static int port = 5000;
-	private static JSONParser parser = new JSONParser();
+public class DictionaryClient{
+
+	private final int DEFINE_ROWS = 7;
+	private JFrame frmDictionaryServer;
+	private JTextField wordBar;
+	private JTextArea consoleArea;
+	private JTextArea meaningArea;
+	private String query_type;
+	private ClientCommunication cc;
+	private ArrayList<JRadioButton> buttonGroup = new ArrayList<JRadioButton>();
+	private ArrayList<JTextField> textGroup = new ArrayList<JTextField>();
 	
+	/**
+	 * Launch the application.
+	 */
 	public static void main(String[] args) {
-		
-		String[] defs = new String[2];
-		defs[0] = "find something";
-		defs[1] = "find somebody";
-		String results1 = query("add", "search", defs);
-		System.out.println(results1);
-		String results2 = query("lookup", "search");
-		System.out.println(results2);
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static String query(String type, String word, String[] defs) {
-		
-		try(Socket socket = new Socket(ip, port);){
-			
-			DataInputStream input = new DataInputStream(socket.getInputStream());
-		    DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-	    	
-    		JSONObject newCommand = new JSONObject();
-    		
-    		String def_str = "";
-    		for (String def : defs)
-    			def_str = def_str + def + "&&";
-    		def_str = def_str.substring(0, def_str.length()-2);
-    		
-    		newCommand.put("query_type", type);
-    		newCommand.put("word", word);
-    		newCommand.put("defs", def_str);
-    		
-    		output.writeUTF(newCommand.toJSONString());
-    		output.flush();
-    		
-    		JSONObject response = (JSONObject)parser.parse(input.readUTF());
-    		String result = (String)response.get("response");
-    		
-    		socket.close();
-    		System.out.println("disconnected...");
-    		
-    		return result;
-		    
-		} catch (UnknownHostException e) {
-			return "IP address of the host name could not be determined";
-		} catch (IOException e) {
-			return "Unable to connect to remote server...";
-		} catch (ParseException e) {
-			return "unreadable response from server...";
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
-	public static String query(String type, String word) {
-		
-		try(Socket socket = new Socket(ip, port);){
-			
-			DataInputStream input = new DataInputStream(socket.getInputStream());
-		    DataOutputStream output = new DataOutputStream(socket.getOutputStream());
-	    	
-    		JSONObject newCommand = new JSONObject();
-    		
-    		newCommand.put("query_type", type);
-    		newCommand.put("word", word);
-    		
-    		output.writeUTF(newCommand.toJSONString());
-    		output.flush();
-    		
-    		JSONObject response = (JSONObject)parser.parse(input.readUTF());
-    		String result = (String)response.get("response");
-    		
-    		socket.close();
-    		System.out.println("disconnected...");
-    		
-    		return result;
-		    
-		} catch (UnknownHostException e) {
-			return "IP address of the host name could not be determined";
-		} catch (IOException e) {
-			return "Unable to connect to remote server...";
-		} catch (ParseException e) {
-			return "unreadable response from server...";
-		}
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					DictionaryClient window = new DictionaryClient();
+					window.frmDictionaryServer.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
+	/**
+	 * Create the application.
+	 */
+	public DictionaryClient() {
+		initialize();
+		this.query_type = "lookup";
+		this.cc = new ClientCommunication();
+	}
+
+	/**
+	 * Initialize the contents of the frame.
+	 */
+	private void initialize() {
+		frmDictionaryServer = new JFrame();
+		frmDictionaryServer.setTitle("Dictionary Server");
+		frmDictionaryServer.setBounds(100, 100, 640, 480);
+		frmDictionaryServer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmDictionaryServer.getContentPane().setLayout(null);
+		
+		wordBar = new JTextField();
+		wordBar.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		wordBar.setBounds(58, 10, 397, 27);
+		frmDictionaryServer.getContentPane().add(wordBar);
+		wordBar.setColumns(10);
+		
+		JButton btnNewButton = new JButton("Submit");
+		btnNewButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				switch(getType()) {
+					case "lookup": lookupOrRemove(); break;
+					case "add": addOrUpdate(); break;
+					case "remove": lookupOrRemove(); break;
+					case "update": addOrUpdate(); break;
+					default: break;
+				}
+			}
+		});
+		btnNewButton.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		btnNewButton.setBounds(474, 9, 124, 23);
+		frmDictionaryServer.getContentPane().add(btnNewButton);
+		
+		JRadioButton lookupButton = new JRadioButton("Look up");
+		lookupButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				exclude(lookupButton);
+				setType("lookup");
+				readMode();
+				clear();
+			}
+		});
+		lookupButton.setSelected(true);
+		lookupButton.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		lookupButton.setBounds(480, 60, 120, 23);
+		frmDictionaryServer.getContentPane().add(lookupButton);
+		buttonGroup.add(lookupButton);
+		
+		JRadioButton addButton = new JRadioButton("Add");
+		addButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				exclude(addButton);
+				setType("add");
+				writeMode();
+				clear();
+			}
+		});
+		addButton.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		addButton.setBounds(480, 100, 120, 23);
+		frmDictionaryServer.getContentPane().add(addButton);
+		buttonGroup.add(addButton);
+		
+		JRadioButton removeButton = new JRadioButton("Remove");
+		removeButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				exclude(removeButton);
+				setType("remove");
+				readMode();
+				clear();
+			}
+		});
+		removeButton.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		removeButton.setBounds(480, 140, 120, 25);
+		frmDictionaryServer.getContentPane().add(removeButton);
+		buttonGroup.add(removeButton);
+		
+		JRadioButton updateButton = new JRadioButton("Update");
+		updateButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				exclude(updateButton);
+				setType("update");
+				writeMode();
+				clear();
+			}
+		});
+		updateButton.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		updateButton.setBounds(480, 180, 120, 23);
+		frmDictionaryServer.getContentPane().add(updateButton);
+		buttonGroup.add(updateButton);
+		
+		JLabel wordLabel = new JLabel("Word :");
+		wordLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		wordLabel.setBounds(10, 16, 45, 15);
+		frmDictionaryServer.getContentPane().add(wordLabel);
+		
+		JLabel consoleLabel = new JLabel("Console : ");
+		consoleLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		consoleLabel.setBounds(10, 299, 73, 15);
+		frmDictionaryServer.getContentPane().add(consoleLabel);
+		
+		JLabel meaningButton = new JLabel("Meaning :");
+		meaningButton.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		meaningButton.setBounds(10, 47, 445, 15);
+		frmDictionaryServer.getContentPane().add(meaningButton);
+		
+		consoleArea = new JTextArea();
+		consoleArea.setBounds(10, 324, 445, 95);
+		frmDictionaryServer.getContentPane().add(consoleArea);
+		consoleArea.setEditable(false);
+		
+		meaningArea = new JTextArea();
+		meaningArea.setBounds(10, 72, 445, 217);
+		frmDictionaryServer.getContentPane().add(meaningArea);
+		meaningArea.setEditable(false);
+		
+		for (int i=0; i<DEFINE_ROWS; i++) {
+			JTextField tf = new JTextField();
+			int y = 72 + i * 30;
+			tf.setBounds(10, y, 445, 25);
+			frmDictionaryServer.getContentPane().add(tf);
+			tf.setColumns(10);
+			tf.setVisible(false);
+			textGroup.add(tf);
+		}
+	}
+	
+	private void exclude(JRadioButton button) {
+		for (JRadioButton b : buttonGroup)
+			b.setSelected(false);
+		button.setSelected(true);
+	}
+	
+	private void setType(String s) {
+		this.query_type = s;
+	}
+	
+	private String getType() {
+		return this.query_type;
+	}
+	
+	private void readMode() {
+		meaningArea.setVisible(true);
+		for (JTextField tf : this.textGroup) {
+			tf.setVisible(false);
+			tf.setEnabled(false);
+		}
+	}
+	
+	private void writeMode() {
+		meaningArea.setVisible(false);
+		for (JTextField tf : this.textGroup) {
+			tf.setVisible(true);
+			tf.setEnabled(true);
+		}
+	}
+	
+	private void lookupOrRemove() {
+		String word = wordBar.getText();
+		if (word.trim() != "" && word.length() > 0) {
+			String result = cc.query(this.query_type, word);
+			if (result.startsWith("Error:")) {
+				consoleArea.setText(result);
+				meaningArea.setText(null);
+			}
+			else {
+				consoleArea.setText("query successed!");
+				meaningArea.setText(result);
+			}
+		} else {
+			consoleArea.setText("Error: please enter a valid word (not all blanks)");
+			meaningArea.setText("");
+		}
+	}
+	
+	private void addOrUpdate() {
+		String word = wordBar.getText();
+		ArrayList<String> defs = new ArrayList<String>();
+		for (JTextField tf : this.textGroup) {
+			String text = tf.getText();
+			if (text.trim() != "" && text.length() > 0)
+				defs.add(text);
+		}
+		if (word.trim() != "" && word.length() > 0 && defs.size() != 0) {
+			String result = cc.query(this.query_type, word, defs);
+			consoleArea.setText(result);
+			if (!result.startsWith("Error:")) {
+				for (JTextField tf : this.textGroup)
+					tf.setText("");
+			}
+		} else {
+			consoleArea.setText("Error: please enter a valid word (not all blanks)");
+		}
+	}
+	
+	private void clear() {
+		this.consoleArea.setText("");
+		this.meaningArea.setText("");
+		this.wordBar.setText("");
+		for (JTextField tf : this.textGroup)
+			tf.setText("");
+	}
 }
