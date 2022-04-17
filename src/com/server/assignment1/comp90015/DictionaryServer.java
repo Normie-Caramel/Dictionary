@@ -68,7 +68,7 @@ public class DictionaryServer {
 		frame = new JFrame();
 		frame.getContentPane().setFont(new Font("Times New Roman", Font.BOLD, 12));
 		frame.setBounds(100, 100, 640, 480);
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
 		portText = new JTextField();
