@@ -2,6 +2,8 @@ package com.server.assignment1.comp90015;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -10,29 +12,24 @@ public class Dictionary {
 	private final int WORD_INDEX = 0;
 	private final int DEF_INDEX = 1;
 	private String path;
-	private int word_count;
-	private int query_count;
-	private int add_count;
-	private int remove_count;
-	private int update_count;
+	private int word_count = 0;
+	private int query_count = 0;
+	private int add_count = 0;
+	private int remove_count = 0;
+	private int update_count = 0;
 	private HashMap<String, String[]> dict;
 	
 	
 	public Dictionary(String path) {
 		this.path = path;
 		this.dict = new HashMap<String, String[]>();
-		this.word_count = 0;
-		this.query_count = 0;
-		this.add_count = 0;
-		this.remove_count = 0;
-		this.update_count = 0;
 	}
 	
 	public void init() {
 		try {
 			Scanner inputStream = new Scanner(new FileInputStream(this.path));
 			while(inputStream.hasNextLine()) {
-				String[] entry = inputStream.nextLine().split("-", -1);
+				String[] entry = inputStream.nextLine().split("--", -1);
 				String[] defs = entry[DEF_INDEX].split("&&",-1);
 				dict.put(entry[WORD_INDEX], defs);
 				this.word_count++;
@@ -47,7 +44,23 @@ public class Dictionary {
 	}
 	
 	public void write() {
-		
+		try {
+			PrintWriter outStream = new PrintWriter(new FileOutputStream(path, false));
+			String dict_log = "";
+			for (HashMap.Entry<String, String[]> entry : dict.entrySet()) {
+				String word = entry.getKey();
+				String[] defs = entry.getValue();
+				String def_str = "";
+	    		for (String def : defs)
+	    			def_str = def_str + def + "&&";
+	    		def_str = def_str.substring(0, def_str.length()-2);
+	    		dict_log = dict_log + word + "--" + def_str + "\n";
+			}
+			outStream.print(dict_log.trim());
+			outStream.close();
+		} catch (FileNotFoundException e) {
+			System.err.println("ERROR: failed to save, target directory does not exist.");
+		}
 	}
 	
 	public String query(String word) {

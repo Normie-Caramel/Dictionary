@@ -2,6 +2,9 @@ package com.server.assignment1.comp90015;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -11,6 +14,9 @@ public class Task implements Runnable{
 
 	private Socket socket;
 	private Dictionary dict;
+	private final ReadWriteLock rwlock = new ReentrantReadWriteLock();
+    private final Lock rlock = rwlock.readLock();
+    private final Lock wlock = rwlock.writeLock();
 	
 	public Task(Socket socket, Dictionary dict) {
 		this.socket = socket;
@@ -55,25 +61,45 @@ public class Task implements Runnable{
 	}
 	
 	private String lookup(JSONObject query){
-		String word = (String)query.get("word");
-		return dict.query(word);
+		rlock.lock();
+		try {
+			String word = (String)query.get("word");
+			return dict.query(word);
+		} finally {
+			rlock.unlock();
+		}
 	}
 	
 	private String add(JSONObject query) {
-		String word = (String)query.get("word");
-		String defs = (String)query.get("defs");
-		return dict.add(word, defs);
+		wlock.lock();
+		try {
+			String word = (String)query.get("word");
+			String defs = (String)query.get("defs");
+			return dict.add(word, defs);
+		} finally {
+			wlock.unlock();
+		}
 	}
 	
 	private String remove(JSONObject query) {
-		String word = (String)query.get("word");
-		return dict.remove(word);
+		wlock.lock();
+		try {
+			String word = (String)query.get("word");
+			return dict.remove(word);
+		} finally {
+			wlock.unlock();
+		}
 	}
 	
 	private String update(JSONObject query) {
-		String word = (String)query.get("word");
-		String defs = (String)query.get("defs");
-		return dict.update(word, defs);
+		wlock.lock();
+		try {
+			String word = (String)query.get("word");
+			String defs = (String)query.get("defs");
+			return dict.update(word, defs);
+		} finally {
+			wlock.unlock();
+		}
 	}
 
 }

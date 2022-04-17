@@ -14,18 +14,16 @@ public class DictionaryServer {
 	private static Dictionary dict = new Dictionary(dict_path);
 
 	public static void main(String[] args) {
-		// set up thread pool
+
 		ExecutorService executor = Executors.newFixedThreadPool(THREAD_NUM);
 		dict.init();
 		
-		// keep listening from clients
 		try(ServerSocket ss = new ServerSocket(SERVER_PORT)) {
 			
 			System.out.println("Server is waiting on port: " + SERVER_PORT + "...");
 			
 			while(true) {
 				
-				// once connection established, pass the mission to a thread
 				Socket socket = ss.accept();
 				System.out.println("connected from " + socket.getRemoteSocketAddress());
 				executor.submit(new Task(socket, dict));
@@ -33,6 +31,7 @@ public class DictionaryServer {
 				if(!running) break;
 			}
 			
+			dict.write();
 			ss.close();
 			executor.shutdown();
 			
