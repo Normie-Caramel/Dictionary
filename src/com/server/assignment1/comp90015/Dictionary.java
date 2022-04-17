@@ -14,6 +14,8 @@ public class Dictionary {
 	private String path;
 	private int word_count = 0;
 	private int query_count = 0;
+	private int failure_count = 0;
+	private int lookup_count = 0;
 	private int add_count = 0;
 	private int remove_count = 0;
 	private int update_count = 0;
@@ -63,7 +65,7 @@ public class Dictionary {
 		}
 	}
 	
-	public String query(String word) {
+	public String lookup(String word) {
 		this.query_count++;
 		if (this.dict.containsKey(word)) {
 			String response = "";
@@ -73,8 +75,10 @@ public class Dictionary {
 				response = response + "def" + def_count + ". " + def + "\n";
 				def_count++;
 			}
+			this.lookup_count++;
 			return response.trim();
 		} else {
+			this.failure_count++;
 			return "Error: The word you are looking for was not found.";
 		}
 	}
@@ -84,8 +88,10 @@ public class Dictionary {
 		if (!this.dict.containsKey(word)) {
 			String[] defs = defs_str.split("&&");
 			this.dict.put(word, defs);
+			this.add_count++;
 			return "Successfully add the word: " + word;
 		} else {
+			this.failure_count++;
 			return "Error: target word exists, fail to add duplicate word.";
 		}
 		
@@ -95,8 +101,10 @@ public class Dictionary {
 		this.query_count++;
 		if (this.dict.containsKey(word)) {
 			this.dict.remove(word);
+			this.remove_count++;
 			return "Successfully remove the word: " + word;
 		} else {
+			this.failure_count++;
 			return "Error: target word does not exist, fail to remove empty word.";
 		}
 	}
@@ -106,14 +114,16 @@ public class Dictionary {
 		if (this.dict.containsKey(word)) {
 			String[] defs = defs_str.split("&&");
 			this.dict.put(word, defs);
+			this.update_count++;
 			return "Successfully update the word: " + word;
 		} else {
+			this.failure_count++;
 			return "Error: target word does not exist, please add it first.";
 		}
 	}
 	
 	public int getWordNum() {
-		return this.word_count;
+		return this.dict.size();
 	}
 	
 	public int getQueryNum() {
@@ -130,5 +140,13 @@ public class Dictionary {
 	
 	public int getUpdateNum() {
 		return this.update_count;
+	}
+	
+	public int getLookupNum() {
+		return this.lookup_count;
+	}
+	
+	public int getFailureNum() {
+		return this.failure_count;
 	}
 }

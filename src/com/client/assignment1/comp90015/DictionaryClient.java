@@ -245,7 +245,7 @@ public class DictionaryClient{
 					tf.setText("");
 			}
 		} else {
-			consoleArea.setText("Error: please enter a valid word (not all blanks)");
+			consoleArea.setText("Error: please enter valid word and defination (not all blanks)");
 		}
 	}
 	

@@ -64,7 +64,7 @@ public class Task implements Runnable{
 		rlock.lock();
 		try {
 			String word = (String)query.get("word");
-			return dict.query(word);
+			return dict.lookup(word);
 		} finally {
 			rlock.unlock();
 		}
