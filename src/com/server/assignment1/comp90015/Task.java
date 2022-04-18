@@ -32,7 +32,7 @@ public class Task implements Runnable{
 			DataOutputStream output = new DataOutputStream(socket.getOutputStream());
 			process(input, output);
 			socket.close();
-			System.out.println("Client disconnected...");
+			System.out.println("Client " + socket.getRemoteSocketAddress() + " disconnected...");
 			
 		} catch (IOException|ParseException e) {
 			e.printStackTrace();

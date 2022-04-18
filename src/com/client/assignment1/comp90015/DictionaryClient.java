@@ -56,7 +56,7 @@ public class DictionaryClient{
 	 */
 	private void initialize() {
 		frmDictionaryServer = new JFrame();
-		frmDictionaryServer.setTitle("Dictionary Server");
+		frmDictionaryServer.setTitle("Dictionary Client");
 		frmDictionaryServer.setBounds(100, 100, 640, 480);
 		frmDictionaryServer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmDictionaryServer.getContentPane().setLayout(null);
@@ -161,6 +161,7 @@ public class DictionaryClient{
 		frmDictionaryServer.getContentPane().add(meaningButton);
 		
 		consoleArea = new JTextArea();
+		consoleArea.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		consoleArea.setBounds(10, 324, 445, 95);
 		frmDictionaryServer.getContentPane().add(consoleArea);
 		consoleArea.setEditable(false);

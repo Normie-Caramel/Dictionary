@@ -100,9 +100,16 @@ public class Dictionary {
 	public String remove(String word) {
 		this.query_count++;
 		if (this.dict.containsKey(word)) {
+			String response = "Removed Definations: \n";
+			String[] defs = dict.get(word);
+			int def_count = 1;
+			for (String def : defs) {
+				response = response + "def" + def_count + ". " + def + "\n";
+				def_count++;
+			}
 			this.dict.remove(word);
 			this.remove_count++;
-			return "Successfully remove the word: " + word;
+			return response;
 		} else {
 			this.failure_count++;
 			return "Error: target word does not exist, fail to remove empty word.";

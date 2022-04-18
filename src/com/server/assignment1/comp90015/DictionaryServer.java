@@ -2,6 +2,9 @@ package com.server.assignment1.comp90015;
 
 import java.awt.EventQueue;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -16,11 +19,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.JTextPane;
+import javax.swing.JTextArea;
 
 public class DictionaryServer {
 
-	private JFrame frame;
+	private JFrame frmDictionaryserver;
 	private int serverPort = 5000;
 	private int threadNum = 10;
 	private String dictPath = System.getProperty("user.dir") + File.separator + "dict.txt";
@@ -31,11 +36,10 @@ public class DictionaryServer {
 	private JSpinner spinner;
 	private JTextPane consolePane;
 	private JTextPane reportPane;
-	private JTextPane consolePane2;
+	private JTextArea consolePane2;
 	private ArrayList<JLabel> initLabels = new ArrayList<JLabel>();
 	private ArrayList<JButton> initButtons = new ArrayList<JButton>();
 	private ArrayList<JButton> opButtons = new ArrayList<JButton>();
-	private ArrayList<JTextPane> opPanes = new ArrayList<JTextPane>();
 
 	/**
 	 * Launch the application.
@@ -46,7 +50,7 @@ public class DictionaryServer {
 			public void run() {
 				try {
 					DictionaryServer window = new DictionaryServer();
-					window.frame.setVisible(true);
+					window.frmDictionaryserver.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -65,17 +69,18 @@ public class DictionaryServer {
 	 * Initialize the contents of the frame.
 	 */
 	private void initialize() {
-		frame = new JFrame();
-		frame.getContentPane().setFont(new Font("Times New Roman", Font.BOLD, 12));
-		frame.setBounds(100, 100, 640, 480);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
+		frmDictionaryserver = new JFrame();
+		frmDictionaryserver.setTitle("DictionaryServer");
+		frmDictionaryserver.getContentPane().setFont(new Font("Times New Roman", Font.BOLD, 12));
+		frmDictionaryserver.setBounds(100, 100, 640, 480);
+		frmDictionaryserver.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frmDictionaryserver.getContentPane().setLayout(null);
 		
 		portText = new JTextField();
 		portText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		portText.setText("5000");
 		portText.setBounds(56, 127, 498, 34);
-		frame.getContentPane().add(portText);
+		frmDictionaryserver.getContentPane().add(portText);
 		portText.setColumns(10);
 		
 		JButton btnNewButton = new JButton("Start");
@@ -88,7 +93,7 @@ public class DictionaryServer {
 		});
 		btnNewButton.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		btnNewButton.setBounds(56, 304, 174, 29);
-		frame.getContentPane().add(btnNewButton);
+		frmDictionaryserver.getContentPane().add(btnNewButton);
 		initButtons.add(btnNewButton);
 		
 		JButton btnNewButton_1 = new JButton("Exit");
@@ -100,63 +105,63 @@ public class DictionaryServer {
 		});
 		btnNewButton_1.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		btnNewButton_1.setBounds(380, 304, 174, 29);
-		frame.getContentPane().add(btnNewButton_1);
+		frmDictionaryserver.getContentPane().add(btnNewButton_1);
 		initButtons.add(btnNewButton_1);
 		
 		JLabel lblNewLabel = new JLabel("SERVER INIT");
 		lblNewLabel.setFont(new Font("Times New Roman", Font.PLAIN, 32));
 		lblNewLabel.setBounds(207, 40, 204, 46);
-		frame.getContentPane().add(lblNewLabel);
+		frmDictionaryserver.getContentPane().add(lblNewLabel);
 		initLabels.add(lblNewLabel);
 		
 		JLabel lblNewLabel_2 = new JLabel("Port : ");
 		lblNewLabel_2.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		lblNewLabel_2.setBounds(56, 101, 54, 15);
-		frame.getContentPane().add(lblNewLabel_2);
+		frmDictionaryserver.getContentPane().add(lblNewLabel_2);
 		initLabels.add(lblNewLabel_2);
 		
 		spinner = new JSpinner();
 		spinner.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		spinner.setModel(new SpinnerNumberModel(1, 1, 10, 1));
 		spinner.setBounds(56, 196, 54, 29);
-		frame.getContentPane().add(spinner);
+		frmDictionaryserver.getContentPane().add(spinner);
 		
 		JLabel lblNewLabel_1 = new JLabel("Thread Number :");
 		lblNewLabel_1.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		lblNewLabel_1.setBounds(56, 171, 129, 15);
-		frame.getContentPane().add(lblNewLabel_1);
+		frmDictionaryserver.getContentPane().add(lblNewLabel_1);
 		initLabels.add(lblNewLabel_1);
 		
 		pathText = new JTextField();
 		pathText.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		pathText.setBounds(56, 260, 498, 34);
 		pathText.setText(this.dictPath);
-		frame.getContentPane().add(pathText);
+		frmDictionaryserver.getContentPane().add(pathText);
 		pathText.setColumns(10);
 		
 		JLabel lblNewLabel_3 = new JLabel("Dictionary Path :");
 		lblNewLabel_3.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		lblNewLabel_3.setBounds(56, 235, 129, 15);
-		frame.getContentPane().add(lblNewLabel_3);
+		frmDictionaryserver.getContentPane().add(lblNewLabel_3);
 		initLabels.add(lblNewLabel_3);
 		
 		consolePane = new JTextPane();
 		consolePane.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		consolePane.setBounds(56, 346, 498, 64);
-		frame.getContentPane().add(consolePane);
+		frmDictionaryserver.getContentPane().add(consolePane);
 		
 		reportPane = new JTextPane();
 		reportPane.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-		reportPane.setBounds(27, 22, 428, 272);
-		frame.getContentPane().add(reportPane);
-		opPanes.add(reportPane);
+		reportPane.setBounds(27, 22, 428, 228);
+		frmDictionaryserver.getContentPane().add(reportPane);
 		reportPane.setVisible(false);
+		reportPane.setEditable(false);
 		
-		consolePane2 = new JTextPane();
+		consolePane2 = new JTextArea();
 		consolePane2.setFont(new Font("Times New Roman", Font.PLAIN, 16));
-		consolePane2.setBounds(27, 312, 428, 102);
-		frame.getContentPane().add(consolePane2);
-		opPanes.add(consolePane2);
+		consolePane2.setBounds(27, 260, 428, 156);
+		frmDictionaryserver.getContentPane().add(consolePane2);
+		consolePane2.setEditable(false);
 		consolePane2.setVisible(false);
 		
 		JButton btnNewButton_2 = new JButton("Refresh");
@@ -168,7 +173,7 @@ public class DictionaryServer {
 		});
 		btnNewButton_2.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		btnNewButton_2.setBounds(475, 22, 115, 34);
-		frame.getContentPane().add(btnNewButton_2);
+		frmDictionaryserver.getContentPane().add(btnNewButton_2);
 		opButtons.add(btnNewButton_2);
 		btnNewButton_2.setVisible(false);
 		
@@ -181,7 +186,7 @@ public class DictionaryServer {
 		});
 		btnNewButton_3.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		btnNewButton_3.setBounds(475, 78, 115, 34);
-		frame.getContentPane().add(btnNewButton_3);
+		frmDictionaryserver.getContentPane().add(btnNewButton_3);
 		opButtons.add(btnNewButton_3);
 		btnNewButton_3.setVisible(false);
 		
@@ -194,15 +199,15 @@ public class DictionaryServer {
 		});
 		btnNewButton_4.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		btnNewButton_4.setBounds(475, 134, 115, 34);
-		frame.getContentPane().add(btnNewButton_4);
+		frmDictionaryserver.getContentPane().add(btnNewButton_4);
 		opButtons.add(btnNewButton_4);
 		btnNewButton_4.setVisible(false);
-		
 	}
 	
 	private void start() {
 		this.server = new Server(serverPort, threadNum, dictPath);
 		this.serverThread = new Thread(server);
+		redirectSystemStreams();
 		this.portText.setVisible(false);
 		this.pathText.setVisible(false);
 		this.spinner.setVisible(false);
@@ -213,8 +218,8 @@ public class DictionaryServer {
 			l.setVisible(false);
 		for (JButton b : this.opButtons)
 			b.setVisible(true);
-		for (JTextPane p : this.opPanes)
-			p.setVisible(true);
+		this.reportPane.setVisible(true);
+		this.consolePane2.setVisible(true);	
 		this.serverThread.start();
 		try {
 			Thread.sleep(300);
@@ -289,5 +294,39 @@ public class DictionaryServer {
 	private void showReport() {
 		String report = this.server.report();
 		this.reportPane.setText(report);
+	}
+	
+	private void consoleUpdate(final String text) {
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				appendConsole(text);
+			}
+		});
+	}
+	
+	private void appendConsole(String text) {
+		consolePane2.append(text);
+	}
+	
+	private void redirectSystemStreams() {
+		 OutputStream out = new OutputStream() {
+		    @Override
+		    public void write(int b) throws IOException {
+		      consoleUpdate(String.valueOf((char) b));
+		    }
+		 
+		    @Override
+		    public void write(byte[] b, int off, int len) throws IOException {
+		      consoleUpdate(new String(b, off, len));
+		    }
+		 
+		    @Override
+		    public void write(byte[] b) throws IOException {
+		      write(b, 0, b.length);
+		    }
+		 };
+		 
+		 System.setOut(new PrintStream(out, true));
+		 System.setErr(new PrintStream(out, true));
 	}
 }
