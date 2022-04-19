@@ -1,5 +1,11 @@
 package com.client.assignment1.comp90015;
 
+/***
+ * Name: Jie Yang
+ * Student ID: 1290106
+ * E-mail: jieyang3@student.unimelb.edu.au
+ */
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -25,9 +31,11 @@ public class DictionaryClient{
 	private ClientCommunication cc;
 	private ArrayList<JRadioButton> buttonGroup = new ArrayList<JRadioButton>();
 	private ArrayList<JTextField> textGroup = new ArrayList<JTextField>();
+	private JTextField textField;
+	private JTextField txtLocalhost;
 	
-	/**
-	 * Launch the application.
+	/***
+	 * Program entry, start client
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -42,31 +50,35 @@ public class DictionaryClient{
 		});
 	}
 
-	/**
-	 * Create the application.
+	/***
+	 * Initialize the program with default value
 	 */
 	public DictionaryClient() {
 		initialize();
 		this.query_type = "lookup";
 		this.cc = new ClientCommunication();
 	}
-
-	/**
-	 * Initialize the contents of the frame.
+	
+	/***
+	 * Initialization of client-side GUI components
 	 */
 	private void initialize() {
+		
+		// GUI frame
 		frmDictionaryServer = new JFrame();
 		frmDictionaryServer.setTitle("Dictionary Client");
 		frmDictionaryServer.setBounds(100, 100, 640, 480);
 		frmDictionaryServer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmDictionaryServer.getContentPane().setLayout(null);
 		
+		// Word input bar
 		wordBar = new JTextField();
 		wordBar.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		wordBar.setBounds(58, 10, 397, 27);
 		frmDictionaryServer.getContentPane().add(wordBar);
 		wordBar.setColumns(10);
 		
+		// Submit button
 		JButton btnNewButton = new JButton("Submit");
 		btnNewButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -84,6 +96,7 @@ public class DictionaryClient{
 		btnNewButton.setBounds(474, 9, 124, 23);
 		frmDictionaryServer.getContentPane().add(btnNewButton);
 		
+		// Exclusive radio button for 'look up'
 		JRadioButton lookupButton = new JRadioButton("Look up");
 		lookupButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -100,6 +113,7 @@ public class DictionaryClient{
 		frmDictionaryServer.getContentPane().add(lookupButton);
 		buttonGroup.add(lookupButton);
 		
+		// Exclusive radio button for 'add'
 		JRadioButton addButton = new JRadioButton("Add");
 		addButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -115,6 +129,7 @@ public class DictionaryClient{
 		frmDictionaryServer.getContentPane().add(addButton);
 		buttonGroup.add(addButton);
 		
+		// Exclusive radio button for 'remove'
 		JRadioButton removeButton = new JRadioButton("Remove");
 		removeButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -130,6 +145,7 @@ public class DictionaryClient{
 		frmDictionaryServer.getContentPane().add(removeButton);
 		buttonGroup.add(removeButton);
 		
+		// Exclusive radio button for 'update'
 		JRadioButton updateButton = new JRadioButton("Update");
 		updateButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -145,6 +161,7 @@ public class DictionaryClient{
 		frmDictionaryServer.getContentPane().add(updateButton);
 		buttonGroup.add(updateButton);
 		
+		// Labels used to guide users
 		JLabel wordLabel = new JLabel("Word :");
 		wordLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		wordLabel.setBounds(10, 16, 45, 15);
@@ -160,17 +177,44 @@ public class DictionaryClient{
 		meaningButton.setBounds(10, 47, 445, 15);
 		frmDictionaryServer.getContentPane().add(meaningButton);
 		
+		JLabel lblNewLabel = new JLabel("Server IP :");
+		lblNewLabel.setFont(new Font("Times New Roman", Font.PLAIN, 16));
+		lblNewLabel.setBounds(474, 241, 82, 15);
+		frmDictionaryServer.getContentPane().add(lblNewLabel);
+		
+		JLabel lblNewLabel_1 = new JLabel("Server Port: ");
+		lblNewLabel_1.setFont(new Font("Times New Roman", Font.PLAIN, 14));
+		lblNewLabel_1.setBounds(474, 303, 82, 15);
+		frmDictionaryServer.getContentPane().add(lblNewLabel_1);
+		
+		// Text area used to prompt operation feedback (error or successful)
 		consoleArea = new JTextArea();
 		consoleArea.setFont(new Font("Times New Roman", Font.PLAIN, 16));
 		consoleArea.setBounds(10, 324, 445, 95);
 		frmDictionaryServer.getContentPane().add(consoleArea);
 		consoleArea.setEditable(false);
 		
+		// Text area to display the meanings of the word if available
 		meaningArea = new JTextArea();
 		meaningArea.setBounds(10, 72, 445, 217);
 		frmDictionaryServer.getContentPane().add(meaningArea);
 		meaningArea.setEditable(false);
 		
+		// Server port input bar
+		textField = new JTextField();
+		textField.setText("5000");
+		textField.setBounds(474, 324, 124, 27);
+		frmDictionaryServer.getContentPane().add(textField);
+		textField.setColumns(10);
+		
+		// Server IP input bar
+		txtLocalhost = new JTextField();
+		txtLocalhost.setText("localhost");
+		txtLocalhost.setBounds(474, 266, 124, 27);
+		frmDictionaryServer.getContentPane().add(txtLocalhost);
+		txtLocalhost.setColumns(10);
+		
+		// Separate input bar for each meaning when 'add' or 'update'
 		for (int i=0; i<DEFINE_ROWS; i++) {
 			JTextField tf = new JTextField();
 			int y = 72 + i * 30;
@@ -182,20 +226,35 @@ public class DictionaryClient{
 		}
 	}
 	
+	/***
+	 * When click one radio button, other radio buttons will be deselected
+	 * @param button selected radio button
+	 */
 	private void exclude(JRadioButton button) {
 		for (JRadioButton b : buttonGroup)
 			b.setSelected(false);
 		button.setSelected(true);
 	}
 	
+	/***
+	 * Update current query type
+	 * @param s: query type
+	 */
 	private void setType(String s) {
 		this.query_type = s;
 	}
 	
+	/***
+	 * Get current query type
+	 * @return query type
+	 */
 	private String getType() {
 		return this.query_type;
 	}
 	
+	/***
+	 * Hide defination input bar group, and show meaning display board
+	 */
 	private void readMode() {
 		meaningArea.setVisible(true);
 		for (JTextField tf : this.textGroup) {
@@ -204,6 +263,9 @@ public class DictionaryClient{
 		}
 	}
 	
+	/***
+	 * Hide meaning display board, and show defination input bar group
+	 */
 	private void writeMode() {
 		meaningArea.setVisible(false);
 		for (JTextField tf : this.textGroup) {
@@ -212,49 +274,93 @@ public class DictionaryClient{
 		}
 	}
 	
+	/***
+	 * Execute lookup or remove query
+	 */
 	private void lookupOrRemove() {
-		String word = wordBar.getText();
-		if (word.trim() != "" && word.length() > 0) {
-			String result = cc.query(this.query_type, word);
-			if (result.startsWith("Error:")) {
-				consoleArea.setText(result);
-				meaningArea.setText(null);
+		try {
+			// update server ip and port
+			config();
+			
+			// check input validation
+			String word = wordBar.getText();
+			if (word.trim() != "" && word.length() > 0) {
+				
+				String result = cc.query(this.query_type, word);
+				
+				// response will start with def#. when successful, 'Error:' otherwise
+				if (result.startsWith("Error:")) {
+					consoleArea.setText(result);
+					meaningArea.setText(null);
+				} else {
+					consoleArea.setText("query successed!");
+					meaningArea.setText(result);
+				}
+			} else {
+				consoleArea.setText("Error: please enter a valid word (not all blanks)");
+				meaningArea.setText("");
 			}
-			else {
-				consoleArea.setText("query successed!");
-				meaningArea.setText(result);
-			}
-		} else {
-			consoleArea.setText("Error: please enter a valid word (not all blanks)");
+		} catch (NumberFormatException e) {
+			consoleArea.setText("Error: Invalid port number");
 			meaningArea.setText("");
 		}
 	}
 	
+	/***
+	 * Execute add or update query
+	 */
 	private void addOrUpdate() {
-		String word = wordBar.getText();
-		ArrayList<String> defs = new ArrayList<String>();
-		for (JTextField tf : this.textGroup) {
-			String text = tf.getText();
-			if (text.trim() != "" && text.length() > 0)
-				defs.add(text);
-		}
-		if (word.trim() != "" && word.length() > 0 && defs.size() != 0) {
-			String result = cc.query(this.query_type, word, defs);
-			consoleArea.setText(result);
-			if (!result.startsWith("Error:")) {
-				for (JTextField tf : this.textGroup)
-					tf.setText("");
+		try {
+			// update server ip and port
+			config();
+			
+			// check input validation
+			String word = wordBar.getText();
+			ArrayList<String> defs = new ArrayList<String>();
+			for (JTextField tf : this.textGroup) {
+				String text = tf.getText();
+				if (text.trim() != "" && text.length() > 0)
+					defs.add(text);
 			}
-		} else {
-			consoleArea.setText("Error: please enter valid word and defination (not all blanks)");
+			if (word.trim() != "" && word.length() > 0 && defs.size() != 0) {
+				String result = cc.query(this.query_type, word, defs);
+				// In this type of query, server only respond status
+				consoleArea.setText(result);
+				if (!result.startsWith("Error:")) {
+					// clear the input field for the next entry
+					for (JTextField tf : this.textGroup)
+						tf.setText("");
+				}
+			} else {
+				consoleArea.setText("Error: please enter valid word and defination (not all blanks)");
+			}
+		} catch (NumberFormatException e) {
+			consoleArea.setText("Error: Invalid port number");
 		}
 	}
 	
+	/***
+	 * Clear all input and output area except word bar
+	 */
 	private void clear() {
 		this.consoleArea.setText("");
 		this.meaningArea.setText("");
 		this.wordBar.setText("");
 		for (JTextField tf : this.textGroup)
 			tf.setText("");
+	}
+	
+	/***
+	 * Update server info such as port and ip
+	 * @throws NumberFormatException when invalid port entered
+	 */
+	private void config() throws NumberFormatException {
+		String ip = txtLocalhost.getText();
+		String port = textField.getText();
+		int portNum = Integer.parseInt(port);
+		if (portNum > 65536 || portNum < 0)
+			throw new NumberFormatException();
+		cc.setIp(ip);
+		cc.setPort(portNum);
 	}
 }
